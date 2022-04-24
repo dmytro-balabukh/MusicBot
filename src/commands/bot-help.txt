@@ -1,0 +1,24 @@
+> **1. PLAY THE SONG**
+> ```ini
+> > [!play] (e.g !play Baria)
+> ```
+> **2. LEAVE THE CHANNEL **
+> ```ini
+> > [!leave]
+> ```
+> **3. PAUSE THE SONG**
+> ```ini
+> > [!pause]
+> ```
+> **4. SHOW QUEUE OF SONGS**
+> ```ini
+> > [!q | !queue]
+> ```
+> **5. SKIP A SONG**
+> ```ini
+> > [!skip]
+> ```
+> **6. JUMP TO THE SONG FROM QUEUE**
+> ```ini
+> > [!jump] (e.g !jump 3)
+> ```

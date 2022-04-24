@@ -5,4 +5,4 @@ export const IntentOptions: IntentsString[] = [
   "GUILD_MESSAGES",
   "GUILD_VOICE_STATES",
   "GUILD_WEBHOOKS"
-];
+];  

@@ -5,7 +5,7 @@ import { CommunicateEvent } from "../events/communicate.event";
 import ReadyEvent from "../events/ready.event";
 
 @injectable()
-export class EventService {
+export default class EventHandlers {
   private readonly readyEvent: ReadyEvent;
   private readonly communicateEvent: CommunicateEvent;
 

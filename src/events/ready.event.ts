@@ -7,19 +7,23 @@ export default class ReadyEvent implements IReadyEvent {
   name: string = 'ready';
 
   execute(client: Client): void {
-    if (!client.user) {
-      // TODO: ADD SUCH THINGS TO SERVICE.
-      console.log("CLIENT USER IS NULL OR UNDEFINED.")
-      return;
+    try {
+      if (!client.user) {
+        // TODO: ADD SUCH THINGS TO SERVICE.
+        console.log("CLIENT USER IS NULL OR UNDEFINED.")
+        return;
+      }
+      console.log(`
+      =====================================
+      Ready! Logged in as ${client.user.tag}
+      =====================================
+      `);
+    } catch (error) {
+      console.log('Error while executing READY event.', error)
     }
-    console.log(`
-    =====================================
-    Ready! Logged in as ${client.user.tag}
-    =====================================
-    `);
   }
 
   configure(client: Client): void {
-    client.once(this.name, this.execute.bind(this));
+    client.once(this.name, () => this.execute(client));
   }
 }

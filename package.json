@@ -4,7 +4,9 @@
   "description": "",
   "main": "./prod/main.js",
   "scripts": {
-    "build": "tsc",
+    "clean": "rimraf prod/",
+    "copy-files": "copyfiles -f src/commands/*.txt prod/commands/",
+    "build": "npm run clean && tsc && npm run copy-files",
     "prestart": "npm run build",
     "start": "node -r dotenv/config ./prod/main.js"
   },
@@ -12,16 +14,24 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/builders": "^0.12.0",
+    "@discordjs/opus": "^0.5.3",
     "@discordjs/rest": "^0.3.0",
+    "@discordjs/voice": "^0.9.0",
     "discord-api-types": "^0.31.0",
+    "discord-youtube-api": "^0.1.0",
     "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",
+    "ffmpeg-static": "^4.4.1",
     "inversify": "^6.0.1",
+    "libsodium-wrappers": "^0.7.10",
     "reflect-metadata": "^0.1.13",
-    "ts-node": "^10.7.0"
+    "ts-node": "^10.7.0",
+    "ytdl-core": "^4.11.0"
   },
   "devDependencies": {
     "@types/node": "^17.0.23",
+    "copyfiles": "^2.4.1",
+    "rimraf": "^3.0.2",
     "typescript": "^4.6.3"
   }
 }
