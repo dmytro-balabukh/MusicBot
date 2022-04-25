@@ -12,6 +12,7 @@ export class CommunicateEvent implements ICommunicateEvent {
   }
   execute(message: Message): void {
     try {
+      message.guild?.commands
       if (!this.validateMessage(message)) {
         return;
       }
@@ -19,7 +20,7 @@ export class CommunicateEvent implements ICommunicateEvent {
         .split(' ')
       let commandName: string = messageArgs.shift() as string;
       let command = this.commandHandler.commands.get(commandName);
-      if(!command) {
+      if (!command) {
         return;
       }
       command.execute(message, messageArgs.join(' '));
@@ -33,7 +34,7 @@ export class CommunicateEvent implements ICommunicateEvent {
   }
 
   validateMessage(message: Message): boolean {
-    if (message.author.bot || message.type === 'REPLY'
+    if (!message.guild || message.author.bot || message.type === 'REPLY'
       || !message.content.startsWith('!')) {
       return false;
     }

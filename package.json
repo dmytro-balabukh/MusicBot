@@ -1,6 +1,5 @@
 {
   "name": "musicbot",
-  "version": "1.0.0",
   "description": "",
   "main": "./prod/main.js",
   "scripts": {
@@ -19,6 +18,7 @@
     "@discordjs/voice": "^0.9.0",
     "discord-api-types": "^0.31.0",
     "discord-youtube-api": "^0.1.0",
+    "discord-ytdl-core": "^5.0.4",
     "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",
     "ffmpeg-static": "^4.4.1",
