@@ -13,6 +13,9 @@ import StatsCommand from "../commands/stats.command";
 import PlayCommand from "../commands/play.command";
 import LeaveCommand from "../commands/leave.commands";
 import YouTube from "discord-youtube-api";
+import AudioQueue from "../types/audio-queue.type";
+import MusicSubscription from "../types/music-subscription.type";
+import Track from "../types/track.type";
 
 let container = new Container();
 
@@ -54,5 +57,12 @@ container.bind<CommandHandler>(TYPES.CommandHandler)
 // Miscelaneous
 container.bind<YouTube>(TYPES.Youtube)
   .toConstantValue(new YouTube(container.get<string>(TYPES.YoutubeToken)));
+
+container.bind<AudioQueue>(TYPES.AudioQueue)
+  .to(AudioQueue).inSingletonScope();
+container.bind<MusicSubscription>(TYPES.MusicSubscription)
+  .to(MusicSubscription).inSingletonScope();
+container.bind<Track>(TYPES.Track)
+  .to(Track).inSingletonScope();
 
 export default container;

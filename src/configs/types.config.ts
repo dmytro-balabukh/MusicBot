@@ -19,6 +19,10 @@ export const TYPES = {
   PlayCommand: Symbol.for('PlayCommand'),
   LeaveCommand: Symbol.for('LeaveCommand'),
 
+  Track: Symbol.for('MusicSubscription'),
+  AudioQueue: Symbol.for('AudioQueue'),
+  MusicSubscription: Symbol.for('MusicSubscription'),
+
   //Miscelaneous
   Youtube: Symbol.for('Youtube')
 };
