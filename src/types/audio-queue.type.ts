@@ -1,27 +1,28 @@
 import ArrayUtils from "../helpers/array-utilts";
+import Constants from "../helpers/constants";
 import Track from "./track.type";
 
 export default class AudioQueue {
 
-  private readonly FALSY_VALUE_MESSAGE: string = 'Queue is a falsy value.';
-  private readonly INDEX_OVERFLOWS_SIZE_OF_ARRAY: string = 'Index overflows size of the array.'
-
-  queue: Track[];
+  private queue: Track[];
 
   constructor() {
     this.queue = [];
   }
 
+  // TODO: Check if decorator can check param for null and throw exception
+  // becuase you do this 'not null' check in every method.
+
   enqueue(track: Track): void {
     if (!this.queue) {
-      throw new Error(this.FALSY_VALUE_MESSAGE);
+      throw new Error(Constants.FALSY_VALUE_MESSAGE(typeof(this)));
     }
     this.queue.push(track)
   }
 
   dequeue(): Track {
     if(ArrayUtils.isNullOrEmpty(this.queue)){
-      throw new Error(this.FALSY_VALUE_MESSAGE);
+      throw new Error(Constants.FALSY_VALUE_MESSAGE(typeof(this)));
     }
     let track: Track = this.queue.shift() as Track;
     return track;
@@ -29,11 +30,11 @@ export default class AudioQueue {
 
   jump(index: number): void {
     if(ArrayUtils.isNullOrEmpty(this.queue)) {
-      console.log(this.FALSY_VALUE_MESSAGE);
+      console.log(Constants.FALSY_VALUE_MESSAGE(typeof(this)));
       return;
     }
     if(this.queue.length < index) {
-      console.log(this.INDEX_OVERFLOWS_SIZE_OF_ARRAY);
+      console.log(Constants.INDEX_OVERFLOWS_SIZE_OF_ARRAY);
     }
     this.queue = this.queue.slice(index);
   }
@@ -44,7 +45,7 @@ export default class AudioQueue {
 
   size(): number {
     if(!this.queue) {
-      throw new Error(this.FALSY_VALUE_MESSAGE);
+      throw new Error(Constants.FALSY_VALUE_MESSAGE(typeof(this)));
     }
     return this.queue.length;
   }

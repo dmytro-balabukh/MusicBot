@@ -3,9 +3,8 @@ import { GuildMember } from "discord.js";
 import AudioQueue from "./audio-queue.type";
 import Track from "./track.type";
 
-
 export default class MusicSubscription {
-    private readonly voiceConnection?: VoiceConnection;
+    public readonly voiceConnection?: VoiceConnection;
     private readonly audioPlayer: AudioPlayer;
     private queue?: AudioQueue;
 
@@ -23,7 +22,8 @@ export default class MusicSubscription {
         return joinVoiceChannel({
             channelId: sender.voice.channelId as string,
             guildId: sender.guild.id,
-            adapterCreator: sender.guild.voiceAdapterCreator,
+            // You can't see this ~_~
+            adapterCreator: sender.guild.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator,
         });
     }
 
@@ -64,12 +64,6 @@ export default class MusicSubscription {
         }
     }
 
-    public flush(): void {
-        this.queue = null;
-        this.audioPlayer.stop();
-        this.voiceConnection.destroy();
-    }
-
     private configureConnectionSignallingState(): void {
         this.voiceConnection.on(VoiceConnectionStatus.Signalling,
             async() => {
@@ -108,8 +102,9 @@ export default class MusicSubscription {
     // Move thesse methods out of the class
     private configureConnectionDestroyedState(): void {
         this.voiceConnection.on(VoiceConnectionStatus.Destroyed, 
-           async () => {
-                await this.flush();
+            () => {
+                this.queue = null;
+                this.audioPlayer.stop();
         });
     }
 
