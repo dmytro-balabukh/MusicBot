@@ -1,13 +1,13 @@
-import { AudioPlayer, AudioPlayerStatus, createAudioPlayer, DiscordGatewayAdapterCreator, entersState, joinVoiceChannel, VoiceConnection, VoiceConnectionState, VoiceConnectionStatus } from "@discordjs/voice";
+import { AudioPlayer, AudioPlayerStatus, createAudioPlayer, DiscordGatewayAdapterCreator, entersState, joinVoiceChannel, VoiceConnection, VoiceConnectionStatus } from "@discordjs/voice";
 import { GuildMember } from "discord.js";
 import AudioQueue from "./audio-queue.type";
 import Track from "./track.type";
 
-export default class MusicSubscription {
-    public readonly voiceConnection: VoiceConnection;
-    public readonly audioPlayer: AudioPlayer;
-    public queue: AudioQueue;
 
+export default class MusicSubscription {
+    private readonly voiceConnection?: VoiceConnection;
+    private readonly audioPlayer: AudioPlayer;
+    private queue?: AudioQueue;
 
     constructor(sender: GuildMember) {
         this.voiceConnection = this.createVoiceConnectionFromSender(sender);
@@ -23,7 +23,7 @@ export default class MusicSubscription {
         return joinVoiceChannel({
             channelId: sender.voice.channelId as string,
             guildId: sender.guild.id,
-            adapterCreator: sender.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator,
+            adapterCreator: sender.guild.voiceAdapterCreator,
         });
     }
 
@@ -57,11 +57,17 @@ export default class MusicSubscription {
         })
     }
 
-    public addTrack(track: Track): void{
+    public addTrack(track: Track): void {
         this.queue.enqueue(track);
         if(this.audioPlayer.state.status !== AudioPlayerStatus.Playing) {
             this.executeNextResource();
         }
+    }
+
+    public flush(): void {
+        this.queue = null;
+        this.audioPlayer.stop();
+        this.voiceConnection.destroy();
     }
 
     private configureConnectionSignallingState(): void {
@@ -112,10 +118,5 @@ export default class MusicSubscription {
         this.configureConnectionConnectingState();
         this.configureConnectionDisconnectedState();
         this.configureConnectionDestroyedState();
-    }
-
-    private async flush(): Promise<void> {
-       this.audioPlayer.stop();
-       await this.queue.wipe();
     }
 }
