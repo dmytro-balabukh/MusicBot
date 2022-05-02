@@ -7,8 +7,8 @@ import Constants from "../helpers/constants";
 @injectable()
 export default class Track {
 
-  private readonly name: string;
-  private readonly url: string;
+  public readonly name: string;
+  public readonly url: string;
 
   constructor(name: string, url: string) {
     this.name = name;

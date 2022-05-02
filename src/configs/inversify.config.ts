@@ -16,6 +16,8 @@ import YouTube from "discord-youtube-api";
 import AudioQueue from "../types/audio-queue.type";
 import MusicSubscription from "../types/music-subscription.type";
 import Track from "../types/track.type";
+import QueueCommand from "../commands/queue.command";
+import JumpCommand from "../commands/jump.command";
 
 let container = new Container();
 
@@ -47,6 +49,17 @@ container.bind<PlayCommand>(TYPES.PlayCommand)
   .to(PlayCommand).inSingletonScope();
 container.bind<LeaveCommand>(TYPES.LeaveCommand)
   .to(LeaveCommand).inSingletonScope();
+
+  container.bind<QueueCommand>(TYPES.QueueCommand)
+  .to(QueueCommand).inSingletonScope();
+  // container.bind<SkipCommamd>(TYPES.SkipCommamd)
+  // .to(SkipCommamd).inSingletonScope();
+  container.bind<JumpCommand>(TYPES.JumpCommand)
+  .to(JumpCommand).inSingletonScope();
+  // container.bind<PauseCommand>(TYPES.PauseCommand)
+  // .to(PauseCommand).inSingletonScope();
+  // container.bind<ContinueCommand>(TYPES.ContinueCommand)
+  // .to(ContinueCommand).inSingletonScope();
 
 // Handlers
 container.bind<EventHandler>(TYPES.EventHandler)

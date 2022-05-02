@@ -12,7 +12,6 @@ export class CommunicateEvent implements ICommunicateEvent {
   }
   execute(message: Message): void {
     try {
-      message.guild?.commands
       if (!this.validateMessage(message)) {
         return;
       }

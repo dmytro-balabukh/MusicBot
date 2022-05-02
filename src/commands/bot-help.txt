@@ -12,7 +12,7 @@
 > ```
 > **4. SHOW QUEUE OF SONGS**
 > ```ini
-> > [!q | !queue]
+> > [!queue]
 > ```
 > **5. SKIP A SONG**
 > ```ini

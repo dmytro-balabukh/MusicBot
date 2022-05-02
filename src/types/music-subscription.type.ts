@@ -1,15 +1,18 @@
 import { AudioPlayer, AudioPlayerStatus, createAudioPlayer, DiscordGatewayAdapterCreator, entersState, joinVoiceChannel, VoiceConnection, VoiceConnectionStatus } from "@discordjs/voice";
-import { GuildMember } from "discord.js";
+import { Guild, GuildMember, TextChannel } from "discord.js";
 import AudioQueue from "./audio-queue.type";
+import { Bot } from "./bot.type";
 import Track from "./track.type";
 
 export default class MusicSubscription {
     public readonly voiceConnection?: VoiceConnection;
+    private readonly textChannel: TextChannel;
     private readonly audioPlayer: AudioPlayer;
-    private queue?: AudioQueue;
-
-    constructor(sender: GuildMember) {
-        this.voiceConnection = this.createVoiceConnectionFromSender(sender);
+    public queue?: AudioQueue;
+    
+    constructor(textChannel: TextChannel, voiceChannelId: string) {
+        this.textChannel = textChannel;
+        this.voiceConnection = this.createVoiceConnection(voiceChannelId);
         this.audioPlayer = createAudioPlayer();
         this.voiceConnection.subscribe(this.audioPlayer);
         this.queue = new AudioQueue();
@@ -17,13 +20,29 @@ export default class MusicSubscription {
         this.configureAudioPlayerIdleState();
         this.configureAudioPlayerPlayingState();
     }
+    
+    public play(track: Track): void {
+        this.queue.enqueue(track);
+        if(this.audioPlayer.state.status !== AudioPlayerStatus.Playing) {
+            this.executeNextResource();
+        }
+    }
 
-    private createVoiceConnectionFromSender(sender: GuildMember): VoiceConnection {
+    public jump(index: number): void {
+        try {
+            this.queue.jump(index);
+            this.executeNextResource();   
+        } catch (error) {
+            console.log(error);
+            this.textChannel.send("CANNOT JUMP");
+        }
+    }
+
+    private createVoiceConnection(voiceChannelId: string): VoiceConnection {
         return joinVoiceChannel({
-            channelId: sender.voice.channelId as string,
-            guildId: sender.guild.id,
-            // You can't see this ~_~
-            adapterCreator: sender.guild.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator,
+            channelId: voiceChannelId,
+            guildId: this.textChannel.guildId,
+            adapterCreator: this.textChannel.guild.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator
         });
     }
 
@@ -33,16 +52,15 @@ export default class MusicSubscription {
             let audioResourceFromTrack = Track.convertToAudioResource(track);
             this.audioPlayer.play(audioResourceFromTrack);
         } catch (error) {
-            console.error('Error occured while trying to execute next resource.', error);
+            this.textChannel.send("Error occured while trying to execute next resource")
             return this.executeNextResource();
         }
     }
 
     private configureAudioPlayerIdleState() {
         this.audioPlayer.on(AudioPlayerStatus.Idle, () => {
-            console.log("IDLE STATE");
-            if(this.queue.size() == 0) {
-                console.log("ALL TRACKS HAS BEEN PLAYED");
+            if(this.queue.size() === 0) {
+                this.textChannel.send(`> **Bot has finished playing**`);
                 return;
             }
             this.executeNextResource();
@@ -51,17 +69,8 @@ export default class MusicSubscription {
     
     private configureAudioPlayerPlayingState(): void {
         this.audioPlayer.on(AudioPlayerStatus.Playing, async (_, newState) => {
-            // show here something like ("Horse with no name has started playing")\
-            // btw, this should be displayed as a message in channel
-            console.log(newState.resource.metadata);
+            this.textChannel.send(`> \`${ newState.resource.metadata }\` **is now playing**`);
         })
-    }
-
-    public addTrack(track: Track): void {
-        this.queue.enqueue(track);
-        if(this.audioPlayer.state.status !== AudioPlayerStatus.Playing) {
-            this.executeNextResource();
-        }
     }
 
     private configureConnectionSignallingState(): void {
@@ -94,7 +103,9 @@ export default class MusicSubscription {
                     entersState(this.voiceConnection, VoiceConnectionStatus.Signalling, 5000),
                     entersState(this.voiceConnection, VoiceConnectionStatus.Connecting, 5000)]);
                 } catch (error) {
-                    this.voiceConnection.destroy();
+                    if(this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) {
+                        this.voiceConnection.destroy();
+                    }
                 }
             })
     }
@@ -105,6 +116,7 @@ export default class MusicSubscription {
             () => {
                 this.queue = null;
                 this.audioPlayer.stop();
+                Bot.subscriptions.delete(this.textChannel.guildId);
         });
     }
 

@@ -10,14 +10,21 @@ export const TYPES = {
   // Handlers
   EventHandler: Symbol.for('EventHandler'),
   CommandHandler: Symbol.for('CommandHandler'),
+
   // Events
   ReadyEvent: Symbol.for('ReadyEvent'),
   CommunicateEvent: Symbol.for('CommunicateEvent'),
+  
   // Commands
   HelpCommand: Symbol.for('HelpCommand'),
   StatsCommand: Symbol.for('StatsCommand'),
   PlayCommand: Symbol.for('PlayCommand'),
   LeaveCommand: Symbol.for('LeaveCommand'),
+  QueueCommand: Symbol.for('QueueCommand'),
+  PauseCommand: Symbol.for('PauseCommand'),
+  ContinueCommand: Symbol.for('ContinueCommand'),
+  SkipCommand: Symbol.for('SkipCommand'),
+  JumpCommand: Symbol.for('JumpCommand'),
 
   Track: Symbol.for('MusicSubscription'),
   AudioQueue: Symbol.for('AudioQueue'),

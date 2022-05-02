@@ -30,11 +30,13 @@ export default class AudioQueue {
 
   jump(index: number): void {
     if(ArrayUtils.isNullOrEmpty(this.queue)) {
-      console.log(Constants.FALSY_VALUE_MESSAGE(typeof(this)));
-      return;
+      throw new Error(Constants.FALSY_VALUE_MESSAGE(typeof(this)));
     }
-    if(this.queue.length < index) {
-      console.log(Constants.INDEX_OVERFLOWS_SIZE_OF_ARRAY);
+    if(index < 0) {
+      throw new Error('Index is less then zero.');
+    }
+    if(this.queue.length - 1 < index) {
+      throw new Error(Constants.INDEX_OVERFLOWS_SIZE_OF_ARRAY);
     }
     this.queue = this.queue.slice(index);
   }
@@ -49,4 +51,6 @@ export default class AudioQueue {
     }
     return this.queue.length;
   }
+
+  getTracksNames = (): string[]  => this.queue.map(obj => obj.name);
 }
