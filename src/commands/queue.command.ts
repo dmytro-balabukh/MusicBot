@@ -20,10 +20,10 @@ export default class QueueCommand implements ICommand {
             return;
         }
         let outputMessage: string = 'QUEUE\n\n';
-        subscription.queue.getTracksNames()
+        subscription.queueManager.getTracksNames()
             .forEach((trackName: string, index: number) => {
                 outputMessage += `${index + 1}. ${trackName}\n`;
-            });
+            });  
         message.channel.send(outputMessage);
     }
 }

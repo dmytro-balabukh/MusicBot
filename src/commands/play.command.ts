@@ -28,7 +28,8 @@ export default class PlayCommand implements ICommand {
     
             let track: Track = new Track(song.title, song.url);
             subscription.play(track);
-    
+            
+            //TODO: Move to MusicSubscription.
             message.reply(`> \`${song.title}\` **has been added to the queue**`)
                 .then((message: Message) => message.react('✅'));
                 

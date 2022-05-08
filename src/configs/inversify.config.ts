@@ -13,11 +13,14 @@ import StatsCommand from "../commands/stats.command";
 import PlayCommand from "../commands/play.command";
 import LeaveCommand from "../commands/leave.commands";
 import YouTube from "discord-youtube-api";
-import AudioQueue from "../types/audio-queue.type";
+import QueueManager from "../types/queue-manager.type";
 import MusicSubscription from "../types/music-subscription.type";
 import Track from "../types/track.type";
 import QueueCommand from "../commands/queue.command";
 import JumpCommand from "../commands/jump.command";
+import SkipCommand from "../commands/skip.command";
+import PauseCommand from "../commands/pause.command";
+import ContinueCommand from "../commands/continue.command";
 
 let container = new Container();
 
@@ -52,14 +55,14 @@ container.bind<LeaveCommand>(TYPES.LeaveCommand)
 
   container.bind<QueueCommand>(TYPES.QueueCommand)
   .to(QueueCommand).inSingletonScope();
-  // container.bind<SkipCommamd>(TYPES.SkipCommamd)
-  // .to(SkipCommamd).inSingletonScope();
+  container.bind<SkipCommand>(TYPES.SkipCommand)
+  .to(SkipCommand).inSingletonScope();
   container.bind<JumpCommand>(TYPES.JumpCommand)
   .to(JumpCommand).inSingletonScope();
-  // container.bind<PauseCommand>(TYPES.PauseCommand)
-  // .to(PauseCommand).inSingletonScope();
-  // container.bind<ContinueCommand>(TYPES.ContinueCommand)
-  // .to(ContinueCommand).inSingletonScope();
+  container.bind<PauseCommand>(TYPES.PauseCommand)
+  .to(PauseCommand).inSingletonScope();
+  container.bind<ContinueCommand>(TYPES.ContinueCommand)
+  .to(ContinueCommand).inSingletonScope();
 
 // Handlers
 container.bind<EventHandler>(TYPES.EventHandler)
@@ -71,8 +74,8 @@ container.bind<CommandHandler>(TYPES.CommandHandler)
 container.bind<YouTube>(TYPES.Youtube)
   .toConstantValue(new YouTube(container.get<string>(TYPES.YoutubeToken)));
 
-container.bind<AudioQueue>(TYPES.AudioQueue)
-  .to(AudioQueue).inSingletonScope();
+container.bind<QueueManager>(TYPES.AudioQueue)
+  .to(QueueManager).inSingletonScope();
 container.bind<MusicSubscription>(TYPES.MusicSubscription)
   .to(MusicSubscription).inSingletonScope();
 container.bind<Track>(TYPES.Track)

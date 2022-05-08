@@ -2,7 +2,8 @@ import { AudioResource, createAudioResource, StreamType } from "@discordjs/voice
 import { injectable } from "inversify";
 import { Readable } from "stream";
 import ytdl from "discord-ytdl-core";
-import Constants from "../helpers/constants";
+import ErrorResult from "../helpers/constants";
+import Result from "./result.type";
 
 @injectable()
 export default class Track {
@@ -15,16 +16,16 @@ export default class Track {
     this.url = url;
   }
 
-  public static convertToAudioResource(track: Track): AudioResource<Track> {
+  public static convertToAudioResource(track: Track): Result<AudioResource<Track>> {
     const stream: Readable = Track.createStreamFromUrl(track.url);
     const resource: AudioResource = createAudioResource(stream, 
       { inputType: StreamType.Opus, metadata: track.name });
 
       if(!resource){
-        throw new Error(Constants.FALSY_VALUE_MESSAGE(typeof(AudioResource)));
+        return Result.createErrorResult(ErrorResult.falsyValue(typeof(track)));
       }
 
-    return resource as AudioResource<Track>;
+    return Result.createSuccessResult(resource as AudioResource<Track>);
   }
 
   private static createStreamFromUrl(url: string): Readable {

@@ -9,25 +9,30 @@ export default class JumpCommand implements ICommand {
     name: string = 'jump';
 
     execute(message: Message<boolean>, args?: string): void {
-        let subscription: MusicSubscription = Bot.subscriptions.get(message.guildId);
-        // Add validation
-        if(!subscription || !this.validateRequest(message, args)) {
-            message.reply('Unable to jump').then((message) => {
-                message.react('❌');
-            });
-            return;
+        try {
+            let subscription: MusicSubscription = Bot.subscriptions.get(message.guildId);
+            // Add validation
+            if(!subscription || !this.validateRequest(message, args)) {
+                message.reply('Unable to jump').then((message) => {
+                    message.react('❌');
+                });
+                return;
+            }
+    
+            // Consider move subscriptions to communication.event.ts, because you call it almost everywhere
+            let indexToJump: number = Number(args) - 1;
+            if(indexToJump === null || indexToJump === undefined){
+                message.channel.send('Can\'t parse args.')
+                return;
+            }
+            subscription.jump(indexToJump);
+        } catch (error) {
+            console.log(error);            
         }
-
-        // Consider move subscriptions to communication.event.ts, because you call it almost everywhere
-        let indexToJump: number = Number(args) - 1;
-        if(!indexToJump){
-            message.channel.send('Can\'t parse args.')
-            return;
-        }
-        subscription.jump(indexToJump);
     }
 
-    validateRequest(message: Message, args: string) {
+    // TODO: This validation doesn't fit there.
+    validateRequest(message: Message, args: string): boolean {
         const sender: GuildMember = message.member as GuildMember;
         const memberChannel = sender.voice.channel as VoiceChannel;
 
