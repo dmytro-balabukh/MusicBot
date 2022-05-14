@@ -13,7 +13,7 @@ import StatsCommand from "../commands/stats.command";
 import PlayCommand from "../commands/play.command";
 import LeaveCommand from "../commands/leave.commands";
 import YouTube from "discord-youtube-api";
-import QueueManager from "../types/queue-manager.type";
+import QueueHandler from "../handlers/queue.handler";
 import MusicSubscription from "../types/music-subscription.type";
 import Track from "../types/track.type";
 import QueueCommand from "../commands/queue.command";
@@ -74,8 +74,8 @@ container.bind<CommandHandler>(TYPES.CommandHandler)
 container.bind<YouTube>(TYPES.Youtube)
   .toConstantValue(new YouTube(container.get<string>(TYPES.YoutubeToken)));
 
-container.bind<QueueManager>(TYPES.AudioQueue)
-  .to(QueueManager).inSingletonScope();
+container.bind<QueueHandler>(TYPES.AudioQueue)
+  .to(QueueHandler).inSingletonScope();
 container.bind<MusicSubscription>(TYPES.MusicSubscription)
   .to(MusicSubscription).inSingletonScope();
 container.bind<Track>(TYPES.Track)

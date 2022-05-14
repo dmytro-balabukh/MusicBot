@@ -1,4 +1,4 @@
-export enum EventTypes {
+export enum EventSeverity {
   On = 'on',
   Once = 'once'
 }

@@ -1,10 +1,12 @@
 import ArrayUtils from "../helpers/array-utilts";
 import ErrorResultMessage from "../helpers/constants";
 import ErrorResult from "../helpers/constants";
-import Result from "./result.type";
-import Track from "./track.type";
+import { DeclineMessage } from "../types/message/models/declined-message.type";
+import { SuccessMessage } from "../types/message/models/success-message.type";
+import Result from "../types/result.type";
+import Track from "../types/track.type";
 
-export default class QueueManager {
+export default class QueueHandler {
 
   private queue: Track[];
 
@@ -17,7 +19,7 @@ export default class QueueManager {
 
   enqueue(track: Track): Result {
     this.queue.push(track)
-    return Result.Empty(`Added ${ track.name } to the queue.`);
+    return Result.Empty(new SuccessMessage(`Added ${ track.name } to the queue.`));
   }
 
   dequeue(): Result<Track> {
@@ -28,14 +30,14 @@ export default class QueueManager {
   jump(index: number): Result<void> {
     if(index < 0) {
       return Result.createErrorResult(ErrorResultMessage.indexIsLessThanZero,
-        `Unable to jump to the specified index.`);
+        new DeclineMessage(`Unable to jump to the specified index.`));
     }
     if(this.queue.length - 1 < index) {
       return Result.createErrorResult(ErrorResultMessage.indexOverflowsSizeOfArray,
-        `Unable to jump to the specified index.`);
+        new DeclineMessage(`Unable to jump to the specified index.`));
     }
     this.queue = this.queue.slice(index);
-    return Result.Empty("Successfully jumped to the specified index.")
+    return Result.Empty(new SuccessMessage("Successfully jumped to the specified index."));
   }
 
   wipeQueue(): void {

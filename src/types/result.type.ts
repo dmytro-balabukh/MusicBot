@@ -1,18 +1,20 @@
+import { ICasualMessage } from "../interfaces/message/casual-message.interface";
+
 export default class Result<T = void> {
     private constructor(
         public result?: T, 
-        public userMessage?: string, 
+        public userMessage?: ICasualMessage, 
         public error?: string) {
     }
 
-    public static createSuccessResult<T = void>(result: T, customMessage?: string): Result<T> {
+    public static createSuccessResult<T = void>(result: T, customMessage?: ICasualMessage): Result<T> {
         if(!result){
             throw new Error("createSuccessResult<T> can't accept falsy result.")
         }
         return new Result<T>(result, customMessage, null);
     }
 
-    public static createErrorResult<T = void>(errorMessage: string, customMessage?: string): Result<T> {
+    public static createErrorResult<T = void>(errorMessage: string, customMessage?: ICasualMessage): Result<T> {
         if(!errorMessage){
             throw new Error("createErrorResult<T> can't accept falsy errorMessage.")
         }
@@ -26,6 +28,6 @@ export default class Result<T = void> {
         return this.result;
     }
 
-    public static readonly Empty = (customMessage: string): Result<void> => 
-                                   new Result<void>(null, customMessage, null);
+    public static readonly Empty = (message: ICasualMessage): Result<void> => 
+                                   new Result<void>(null, message, null);
 }

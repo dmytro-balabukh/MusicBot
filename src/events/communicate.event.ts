@@ -2,7 +2,7 @@ import { Channel, Client, Message } from "discord.js";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../configs/types.config";
 import CommandHandler from "../handlers/command.handler";
-import { ICommunicateEvent } from "../interfaces/event.interface";
+import { ICommunicateEvent } from "../interfaces/event/communicate-event.interface";
 
 @injectable()
 export class CommunicateEvent implements ICommunicateEvent {

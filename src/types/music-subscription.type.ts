@@ -1,81 +1,87 @@
 import { AudioPlayer, AudioPlayerStatus, AudioResource, createAudioPlayer, DiscordGatewayAdapterCreator, entersState, joinVoiceChannel, VoiceConnection, VoiceConnectionStatus } from "@discordjs/voice";
-import { Guild, GuildMember, TextChannel } from "discord.js";
-import ErrorResultMessage from "../helpers/constants";
-import QueueManager from "./queue-manager.type";
+import { TextChannel } from "discord.js";
+import QueueHandler from "../handlers/queue.handler";
 import { Bot } from "./bot.type";
 import Result from "./result.type";
 import Track from "./track.type";
+import MessageHandler from "../handlers/message.handler";
+import { CasualMessageStrategy } from "./message/strategies/casual-message-strategy.type";
+import { CasualMessage } from "./message/models/casual-message.type";
+import { EmphasizedMessageStrategy } from "./message/strategies/emphasized-message-strategy.type";
+import { DeclineMessage } from "./message/models/declined-message.type";
+import { SuccessMessage } from "./message/models/success-message.type";
 
 export default class MusicSubscription {
     public readonly voiceConnection?: VoiceConnection;
     private readonly textChannel: TextChannel;
     private readonly audioPlayer: AudioPlayer;
-    public queueManager?: QueueManager;
+    public queueHandler?: QueueHandler;
+    public messageHandler: MessageHandler;
 
     constructor(textChannel: TextChannel, voiceChannelId: string) {
         this.textChannel = textChannel;
         this.voiceConnection = this.createVoiceConnection(voiceChannelId);
         this.audioPlayer = createAudioPlayer();
         this.voiceConnection.subscribe(this.audioPlayer);
-        this.queueManager = new QueueManager();
+        this.queueHandler = new QueueHandler();
         this.configureConnectionStates();
         this.configureAudioPlayerIdleState();
         this.configureAudioPlayerPlayingState();
+        this.messageHandler = new MessageHandler(this.textChannel);
     }
 
     public play(track: Track): void {
-        let result: Result = this.queueManager.enqueue(track);
-        if (result.error) {
-            console.log(result.error);
-            this.textChannel.send(result.userMessage);
-            return;
-        }
+        let result: Result = this.queueHandler.enqueue(track);
+        this.messageHandler.setStrategy(new EmphasizedMessageStrategy());
+        this.messageHandler.send(result.userMessage);
+
         if (this.audioPlayer.state.status !== AudioPlayerStatus.Playing) {
             this.executeNextResource();
         }
     }
 
     public jump(index: number): void {
-        let result: Result = this.queueManager.jump(index);
+        let result: Result = this.queueHandler.jump(index);
         if (result.error) {
             console.log(result.error);
-            this.textChannel.send(result.userMessage);
+            this.messageHandler.send(result.userMessage);
             return;
         }
+        this.messageHandler.send(result.userMessage);
         this.executeNextResource();
     }
 
     public skip(): void {
-        if (this.queueManager.getQueueSize() === 0) {
-            this.textChannel.send("Nothing to skip.");
+        this.messageHandler.setStrategy(new EmphasizedMessageStrategy());
+        if (this.queueHandler.getQueueSize() === 0) {
+            this.messageHandler.send(new DeclineMessage("Queue is empty. Nothing to skip."));
             return;
         }
 
-        let result: Result<Track> = this.queueManager.dequeue();
-        if (result.error) {
-            console.log(result.error);
-            this.textChannel.send(result.userMessage);
-            return
-        }
-
+        let result: Result<Track> = this.queueHandler.dequeue();
+        this.messageHandler.send(result.userMessage);
     }
 
     public pause(): void {
+        this.messageHandler.setStrategy(new EmphasizedMessageStrategy());
         if (this.audioPlayer.state.status !== AudioPlayerStatus.Playing) {
-            this.textChannel.send("Bot is not playing any resource.");
+            this.messageHandler.send(new DeclineMessage("Bot is not playing any resource."));
             return;
         }
         let result: boolean = this.audioPlayer.pause();
-        this.textChannel.send(`Bot was ${ result ? 'successfuly' : 'not' } paused.`);
+        this.messageHandler.send(result ? new SuccessMessage(`Bot was successfuly paused.`) :
+            new DeclineMessage('Bot could not be paused due to internal errors.'));
     }
 
     public continue(): void {
+        this.messageHandler.setStrategy(new EmphasizedMessageStrategy());
         if (this.audioPlayer.state.status !== AudioPlayerStatus.Paused) {
-            this.textChannel.send("Bot is not paused.");
+            this.messageHandler.send(new DeclineMessage('Bot is not paused at the moment.'));
             return;
         }
         let result: boolean = this.audioPlayer.unpause();
-        this.textChannel.send(`Bot was ${ result ? 'successfuly' : 'not' } unpaused.`);
+        this.messageHandler.send(result ? new SuccessMessage(`Bot was successfuly unpaused.`) :
+            new DeclineMessage('Bot could not be unpaused due to internal errors.'));
     }
 
     private createVoiceConnection(voiceChannelId: string): VoiceConnection {
@@ -88,13 +94,14 @@ export default class MusicSubscription {
         }
         catch (error) {
             console.log(error);
-            this.textChannel.send("Unable to create voice connection.");
+            this.messageHandler.setStrategy(new EmphasizedMessageStrategy());
+            this.messageHandler.send(new DeclineMessage("Unable to create voice connection."));
         }
     }
 
     private executeNextResource(): void {
         try {
-            let dequeueResult: Result<Track> = this.queueManager.dequeue();
+            let dequeueResult: Result<Track> = this.queueHandler.dequeue();
             if (dequeueResult.error) {
                 console.log(dequeueResult.error);
                 this.textChannel.send(dequeueResult.userMessage);
@@ -117,7 +124,7 @@ export default class MusicSubscription {
 
     private configureAudioPlayerIdleState() {
         this.audioPlayer.on(AudioPlayerStatus.Idle, () => {
-            if (this.queueManager.getQueueSize() === 0) {
+            if (this.queueHandler.getQueueSize() === 0) {
                 this.textChannel.send(`> **Bot has finished playing**`);
                 return;
             }
@@ -173,7 +180,7 @@ export default class MusicSubscription {
         this.voiceConnection.on(VoiceConnectionStatus.Destroyed,
             () => {
                 try {
-                    this.queueManager = null;
+                    this.queueHandler = null;
                     this.audioPlayer.stop();
                     Bot.subscriptions.delete(this.textChannel.guildId);
                 } catch (error) {
