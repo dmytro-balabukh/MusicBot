@@ -19,6 +19,6 @@ export default class MessageHandler {
     }
 
     public reply(message: ICasualMessage, messageToReply: Message){
-        this.strategy.reply(this.textChannel, message, messageToReply);
+        this.strategy.reply(message, messageToReply);
     }
 }

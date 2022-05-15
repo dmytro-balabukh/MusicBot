@@ -19,7 +19,7 @@ export default class QueueHandler {
 
   enqueue(track: Track): Result {
     this.queue.push(track)
-    return Result.Empty(new SuccessMessage(`Added ${ track.name } to the queue.`));
+    return Result.Empty(new SuccessMessage(`> \`${track.name}\` **has been added to the queue**`));
   }
 
   dequeue(): Result<Track> {

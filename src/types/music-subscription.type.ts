@@ -80,8 +80,9 @@ export default class MusicSubscription {
             return;
         }
         let result: boolean = this.audioPlayer.unpause();
-        this.messageHandler.send(result ? new SuccessMessage(`Bot was successfuly unpaused.`) :
-            new DeclineMessage('Bot could not be unpaused due to internal errors.'));
+        if(!result){
+            this.messageHandler.send(new DeclineMessage('Bot could not be unpaused due to internal errors.'));
+        }
     }
 
     private createVoiceConnection(voiceChannelId: string): VoiceConnection {
@@ -100,32 +101,29 @@ export default class MusicSubscription {
     }
 
     private executeNextResource(): void {
+        this.messageHandler.setStrategy(new EmphasizedMessageStrategy());
         try {
             let dequeueResult: Result<Track> = this.queueHandler.dequeue();
-            if (dequeueResult.error) {
-                console.log(dequeueResult.error);
-                this.textChannel.send(dequeueResult.userMessage);
-                return;
-            }
             let convertToAudioResourceResult: Result<AudioResource<Track>> = Track.convertToAudioResource(dequeueResult.result);
 
             if (convertToAudioResourceResult.error) {
                 console.log(convertToAudioResourceResult.error);
-                this.textChannel.send(convertToAudioResourceResult.userMessage);
+                this.messageHandler.send(new DeclineMessage('Unable to execute next resource.'));
                 return;
             }
 
             this.audioPlayer.play(convertToAudioResourceResult.result);
         } catch (error) {
             console.log(error);
-            this.textChannel.send("Error occured while trying to execute next resource.")
+            this.messageHandler.send(new DeclineMessage('Unhandled error occured while trying to execute next resource.'))
         }
     }
 
     private configureAudioPlayerIdleState() {
         this.audioPlayer.on(AudioPlayerStatus.Idle, () => {
             if (this.queueHandler.getQueueSize() === 0) {
-                this.textChannel.send(`> **Bot has finished playing**`);
+                this.messageHandler.setStrategy(new CasualMessageStrategy);
+                this.messageHandler.send(new CasualMessage(`> **Bot has finished playing**`));
                 return;
             }
             this.executeNextResource();
@@ -134,7 +132,8 @@ export default class MusicSubscription {
 
     private configureAudioPlayerPlayingState(): void {
         this.audioPlayer.on(AudioPlayerStatus.Playing, async (_, newState) => {
-            this.textChannel.send(`> \`${newState.resource.metadata}\` **is now playing**`);
+            this.messageHandler.setStrategy(new CasualMessageStrategy());
+            this.messageHandler.send(new CasualMessage(`> \`${newState.resource.metadata}\` **is now playing**`));
         })
     }
 
@@ -184,7 +183,8 @@ export default class MusicSubscription {
                     this.audioPlayer.stop();
                     Bot.subscriptions.delete(this.textChannel.guildId);
                 } catch (error) {
-                    this.textChannel.send("Unable to destroy voice connection.")
+                    this.messageHandler.setStrategy(new EmphasizedMessageStrategy());
+                    this.messageHandler.send(new DeclineMessage("Unable to destroy voice connection."));
                     console.log(error);
                 }
             });
