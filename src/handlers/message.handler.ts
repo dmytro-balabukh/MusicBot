@@ -1,13 +1,15 @@
 import { Message, TextChannel } from "discord.js";
+import { injectable } from "inversify";
 import { IMessageStrategy } from "../interfaces/message-strategy.interface";
 import { ICasualMessage } from "../interfaces/message/casual-message.interface";
 
+@injectable()
 export default class MessageHandler {
     private strategy: IMessageStrategy;
     private textChannel: TextChannel;
 
-    constructor(textChannel: TextChannel) {
-        this.textChannel = textChannel;
+    public setChannel(newChannel: TextChannel){
+        this.textChannel = newChannel;
     }
 
     public setStrategy(newStrategy: IMessageStrategy){

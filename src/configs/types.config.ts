@@ -6,10 +6,13 @@ export const TYPES = {
   ClientId: Symbol.for('ClientId'),
   GuildId: Symbol.for('GuildId'),
   YoutubeToken: Symbol.for('YoutubeToken'),
+  TextChannel: Symbol.for('TextChannel'),
 
   // Handlers
   EventHandler: Symbol.for('EventHandler'),
   CommandHandler: Symbol.for('CommandHandler'),
+  MessageHandler: Symbol.for('MessageHandler'),
+  QueueHandler: Symbol.for('QueueHandler'),
 
   // Events
   ReadyEvent: Symbol.for('ReadyEvent'),
@@ -26,8 +29,7 @@ export const TYPES = {
   SkipCommand: Symbol.for('SkipCommand'),
   JumpCommand: Symbol.for('JumpCommand'),
 
-  Track: Symbol.for('MusicSubscription'),
-  AudioQueue: Symbol.for('AudioQueue'),
+  Track: Symbol.for('Track'),
   MusicSubscription: Symbol.for('MusicSubscription'),
 
   //Miscelaneous

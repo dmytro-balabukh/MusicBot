@@ -10,13 +10,15 @@ import { CasualMessage } from "./message/models/casual-message.type";
 import { EmphasizedMessageStrategy } from "./message/strategies/emphasized-message-strategy.type";
 import { DeclineMessage } from "./message/models/declined-message.type";
 import { SuccessMessage } from "./message/models/success-message.type";
+import { inject } from "inversify";
+import { TYPES } from "../configs/types.config";
 
 export default class MusicSubscription {
     public readonly voiceConnection?: VoiceConnection;
     private readonly textChannel: TextChannel;
     private readonly audioPlayer: AudioPlayer;
     public queueHandler?: QueueHandler;
-    public messageHandler: MessageHandler;
+    private messageHandler: MessageHandler
 
     constructor(textChannel: TextChannel, voiceChannelId: string) {
         this.textChannel = textChannel;
@@ -27,9 +29,10 @@ export default class MusicSubscription {
         this.configureConnectionStates();
         this.configureAudioPlayerIdleState();
         this.configureAudioPlayerPlayingState();
-        this.messageHandler = new MessageHandler(this.textChannel);
+        this.messageHandler = new MessageHandler();
+        this.messageHandler.setChannel(textChannel);
     }
-
+ 
     public play(track: Track): void {
         let result: Result = this.queueHandler.enqueue(track);
         this.messageHandler.setStrategy(new EmphasizedMessageStrategy());
@@ -39,11 +42,12 @@ export default class MusicSubscription {
             this.executeNextResource();
         }
     }
-
+       
     public jump(index: number): void {
         let result: Result = this.queueHandler.jump(index);
         if (result.error) {
             console.log(result.error);
+            this.messageHandler.setStrategy(new EmphasizedMessageStrategy());
             this.messageHandler.send(result.userMessage);
             return;
         }
@@ -53,13 +57,14 @@ export default class MusicSubscription {
 
     public skip(): void {
         this.messageHandler.setStrategy(new EmphasizedMessageStrategy());
-        if (this.queueHandler.getQueueSize() === 0) {
-            this.messageHandler.send(new DeclineMessage("Queue is empty. Nothing to skip."));
+        if (this.audioPlayer.state.status !== AudioPlayerStatus.Playing) {
+            this.messageHandler.send(new DeclineMessage("Nothing to skip."));
             return;
         }
+        this.audioPlayer.stop();
 
-        let result: Result<Track> = this.queueHandler.dequeue();
-        this.messageHandler.send(result.userMessage);
+        //let result: Result<Track> = this.queueHandler.dequeue();
+        //this.messageHandler.send(result.userMessage);
     }
 
     public pause(): void {

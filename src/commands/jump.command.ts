@@ -13,16 +13,15 @@ export default class JumpCommand implements ICommand {
             let subscription: MusicSubscription = Bot.subscriptions.get(message.guildId);
             // Add validation
             if(!subscription || !this.validateRequest(message, args)) {
-                message.reply('Unable to jump').then((message) => {
-                    message.react('❌');
-                });
                 return;
             }
     
             // Consider move subscriptions to communication.event.ts, because you call it almost everywhere
             let indexToJump: number = Number(args) - 1;
-            if(indexToJump === null || indexToJump === undefined){
-                message.channel.send('Can\'t parse args.')
+            if(indexToJump === null || indexToJump === undefined || isNaN(indexToJump)){
+                message.channel.send('Unable to jump to the specified index.').then((message) => {
+                    message.react('❌');
+                });
                 return;
             }
             subscription.jump(indexToJump);
