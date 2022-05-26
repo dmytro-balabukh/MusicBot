@@ -34,7 +34,7 @@ export class CommunicateEvent implements ICommunicateEvent {
 
   validateMessage(message: Message): boolean {
     if (!message.guild || message.author.bot || message.type === 'REPLY'
-      || !message.content.startsWith('!')) {
+      || !message.content.startsWith('!')) { // !play song
       return false;
     }
     return true;
