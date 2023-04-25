@@ -5,7 +5,7 @@ import { CommunicateEvent } from "../events/communicate.event";
 import ReadyEvent from "../events/ready.event";
 
 @injectable()
-export default class EventHandlers {
+export class EventHandlers {
   private readonly readyEvent: ReadyEvent;
   private readonly communicateEvent: CommunicateEvent;
 
@@ -17,7 +17,7 @@ export default class EventHandlers {
     this.communicateEvent = communicateEvent;
   }
   public async configureEvents(client: Client) {
-    this.readyEvent.configure(client);
+    await this.readyEvent.configure(client);
     this.communicateEvent.configure(client);
   }
 }

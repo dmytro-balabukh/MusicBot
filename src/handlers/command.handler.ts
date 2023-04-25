@@ -11,6 +11,8 @@ import SkipCommand from "../commands/skip.command";
 import StatsCommand from "../commands/stats.command";
 import { TYPES } from "../configs/types.config";
 import { ICommand } from "../interfaces/command.interface";
+import GuessCommand from "../commands/guess.command";
+import EffectCommand from "../commands/effect.command";
 
 @injectable()
 export default class CommandHandler {
@@ -21,20 +23,24 @@ export default class CommandHandler {
         @inject(TYPES.HelpCommand) helpCommand: HelpCommand,
         @inject(TYPES.StatsCommand) statsCommand: StatsCommand,
         @inject(TYPES.PlayCommand) playCommand: PlayCommand,
+        @inject(TYPES.GuessCommand) guessCommand: GuessCommand,
         @inject(TYPES.LeaveCommand) leaveCommand: LeaveCommand,
         @inject(TYPES.PauseCommand) pauseCommand: PauseCommand,
         @inject(TYPES.ContinueCommand) continueCommand: ContinueCommand,
         @inject(TYPES.SkipCommand) skipCommand: SkipCommand,
         @inject(TYPES.JumpCommand) jumpCommand: JumpCommand,
+        @inject(TYPES.EffectCommand) effectCommand: EffectCommand,
         @inject(TYPES.QueueCommand) queueCommand: QueueCommand) {
         this.commands.set(helpCommand.name, helpCommand);
         this.commands.set(statsCommand.name, statsCommand);
         this.commands.set(playCommand.name, playCommand);
+        this.commands.set(guessCommand.name, guessCommand);
         this.commands.set(leaveCommand.name, leaveCommand);
         this.commands.set(queueCommand.name, queueCommand);
         this.commands.set(jumpCommand.name, jumpCommand);
         this.commands.set(skipCommand.name, skipCommand);
         this.commands.set(pauseCommand.name, pauseCommand);
+        this.commands.set(effectCommand.name, effectCommand);
         this.commands.set(continueCommand.name, continueCommand);
         
     }

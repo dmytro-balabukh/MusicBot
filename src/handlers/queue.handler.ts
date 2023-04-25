@@ -1,14 +1,16 @@
-import ArrayUtils from "../helpers/array-utilts";
-import ErrorResultMessage from "../helpers/constants";
-import ErrorResult from "../helpers/constants";
-import { DeclineMessage } from "../types/message/models/declined-message.type";
-import { SuccessMessage } from "../types/message/models/success-message.type";
-import Result from "../types/result.type";
-import Track from "../types/track.type";
+import { ErrorResultMessage } from "../helpers/constants";
+import Utils from "../helpers/utils";
+import ResultService from "../services/result.service";
+import TrackService from "../services/track.service";
 
 export default class QueueHandler {
+  private queue: TrackService[];
 
-  private queue: Track[];
+  private lastTakenFromQueue: TrackService;
+  public get lastShiftElement() : TrackService {
+    return this.lastTakenFromQueue;
+  }
+  
 
   constructor() {
     this.queue = [];
@@ -17,27 +19,35 @@ export default class QueueHandler {
   // TODO: Check if decorator can check param for null and throw exception
   // becuase you do this 'not null' check in every method.
 
-  enqueue(track: Track): Result {
-    this.queue.push(track)
-    return Result.Empty(new SuccessMessage(`> \`${track.name}\` **has been added to the queue**`));
+  enqueue(track: TrackService): ResultService {
+    this.queue.push(track);
+    return ResultService.Empty(
+      `> \`${track.name}\` **has been added to the queue**`
+    );
   }
 
-  dequeue(): Result<Track> {
-    let track: Track = this.queue.shift() as Track;
-    return Result.createSuccessResult<Track>(track);
+  dequeue(): ResultService<TrackService> {
+    this.lastTakenFromQueue = this.queue.shift() as TrackService;
+    return ResultService.createSuccessResult<TrackService>(
+      this.lastShiftElement
+    );
   }
 
-  jump(index: number): Result<void> {
-    if(index < 0) {
-      return Result.createErrorResult(ErrorResultMessage.indexIsLessThanZero,
-        new DeclineMessage(`Unable to jump to the specified index.`));
+  jump(index: number): ResultService<void> {
+    if (index < 0) {
+      return ResultService.createErrorResult(
+        ErrorResultMessage.indexIsLessThanZero,
+        `Unable to jump to the specified index.`
+      );
     }
-    if(this.queue.length - 1 < index) {
-      return Result.createErrorResult(ErrorResultMessage.indexOverflowsSizeOfArray,
-        new DeclineMessage(`Unable to jump to the specified index.`));
+    if (this.queue.length - 1 < index) {
+      return ResultService.createErrorResult(
+        ErrorResultMessage.indexOverflowsSizeOfArray,
+        `Unable to jump to the specified index.`
+      );
     }
     this.queue = this.queue.slice(index);
-    return Result.Empty(new SuccessMessage("Successfully jumped to the specified index."));
+    return ResultService.Empty("Successfully jumped to the specified index.");
   }
 
   wipeQueue(): void {
@@ -48,5 +58,5 @@ export default class QueueHandler {
     return this.queue.length;
   }
 
-  getTracksNames = (): string[]  => this.queue.map(obj => obj.name);
+  getTracks = (): TrackService[] => this.queue;
 }

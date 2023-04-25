@@ -1,19 +1,19 @@
 import { GuildMember, Message, VoiceChannel } from "discord.js";
 import { injectable } from "inversify";
 import { ICommand } from "../interfaces/command.interface";
-import { Bot } from "../types/bot.type";
-import MusicSubscription from "../types/music-subscription.type";
+import { BotService } from "../services/bot.service";
+import MusicSubscriptionService from "../services/music-subscription.service";
 
 @injectable()
 export default class PauseCommand implements ICommand {
     name: string = 'pause';
     execute(message: Message<boolean>): void {
         try {
-            let subscription: MusicSubscription = Bot.subscriptions.get(message.guildId);
+            let subscription: MusicSubscriptionService = BotService.subscriptions.get(message.guildId);
             if(!subscription || !this.validateRequest(message)) {
                 return;
             }
-            subscription.pause();
+            subscription.audioPlayerService.pause();
         } catch (error) {
             console.log(error);
         }

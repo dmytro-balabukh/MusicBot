@@ -11,7 +11,6 @@ export const TYPES = {
   // Handlers
   EventHandler: Symbol.for('EventHandler'),
   CommandHandler: Symbol.for('CommandHandler'),
-  MessageHandler: Symbol.for('MessageHandler'),
   QueueHandler: Symbol.for('QueueHandler'),
 
   // Events
@@ -22,16 +21,19 @@ export const TYPES = {
   HelpCommand: Symbol.for('HelpCommand'),
   StatsCommand: Symbol.for('StatsCommand'),
   PlayCommand: Symbol.for('PlayCommand'),
+  GuessCommand: Symbol.for('GuessCommand'),
   LeaveCommand: Symbol.for('LeaveCommand'),
   QueueCommand: Symbol.for('QueueCommand'),
   PauseCommand: Symbol.for('PauseCommand'),
   ContinueCommand: Symbol.for('ContinueCommand'),
   SkipCommand: Symbol.for('SkipCommand'),
   JumpCommand: Symbol.for('JumpCommand'),
+  EffectCommand: Symbol.for('EffectCommand'),
 
   Track: Symbol.for('Track'),
   MusicSubscription: Symbol.for('MusicSubscription'),
 
   //Miscelaneous
-  Youtube: Symbol.for('Youtube')
+  Youtube: Symbol.for('Youtube'),
+  YoutubeService: Symbol.for('YoutubeService'),
 };

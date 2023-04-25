@@ -3,28 +3,23 @@ import { inject, injectable } from "inversify";
 
 import container from "../configs/inversify.config";
 import { TYPES } from "../configs/types.config";
-import MessageHandler from "../handlers/message.handler";
 import { ICommand } from "../interfaces/command.interface";
-import { Bot } from "../types/bot.type";
-import { DeclineMessage } from "../types/message/models/declined-message.type";
-import { EmphasizedMessageStrategy } from "../types/message/strategies/emphasized-message-strategy.type";
-import MusicSubscription from "../types/music-subscription.type";
+import { BotService } from "../services/bot.service";
+import MusicSubscriptionService from "../services/music-subscription.service";
+import { Reactions } from "../helpers/constants";
 
 @injectable()
 export default class SkipCommand implements ICommand {
     name: string = 'skip';
-    @inject(TYPES.MessageHandler) private messageHandler: MessageHandler;
 
     execute(message: Message, args?: string): void {
         try {
-            let subscription: MusicSubscription = Bot.subscriptions.get(message.guildId);
+            let subscription: MusicSubscriptionService = BotService.subscriptions.get(message.guildId);
             if(!subscription || !this.validateRequest(message, args)) {
-                this.messageHandler = container.get<MessageHandler>(TYPES.MessageHandler);
-                this.messageHandler.setStrategy(new EmphasizedMessageStrategy());
-                this.messageHandler.send(new DeclineMessage('Unable to skip.'));
+                message.channel.send('Unable to skip.').then(Reactions.reactDecline);
                 return;
             }
-            subscription.skip();
+            subscription.audioPlayerService.skip();
         } catch (error) {
             console.log(error);
         }

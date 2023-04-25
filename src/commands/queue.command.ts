@@ -1,42 +1,36 @@
-import { Message, TextChannel } from "discord.js";
-import { inject, injectable } from "inversify";
-import { TYPES } from "../configs/types.config";
-import MessageHandler from "../handlers/message.handler";
+import { Message } from "discord.js";
+import { injectable } from "inversify";
 import { ICommand } from "../interfaces/command.interface";
-import { Bot } from "../types/bot.type";
-import { CasualMessage } from "../types/message/models/casual-message.type";
-import { DeclineMessage } from "../types/message/models/declined-message.type";
-import { CasualMessageStrategy } from "../types/message/strategies/casual-message-strategy.type";
-import { EmphasizedMessageStrategy } from "../types/message/strategies/emphasized-message-strategy.type";
-import MusicSubscription from "../types/music-subscription.type";
+import { BotService } from "../services/bot.service";
+import MusicSubscriptionService from "../services/music-subscription.service";
+import { Reactions } from "../helpers/constants";
+import TrackService from "../services/track.service";
+import { AudioEffect } from "../enums/audio-effect.enum";
+import Utils from "../helpers/utils";
 
 @injectable()
 export default class QueueCommand implements ICommand {
     name: string = 'queue';
-    @inject(TYPES.MessageHandler) private messageHandler: MessageHandler;
 
     execute(message: Message, args?: string): void {
         if(args.length !== 0) {
             return;
         }
-        this.messageHandler.setChannel(message.channel as TextChannel);
-        this.messageHandler.setStrategy(new EmphasizedMessageStrategy());
-        let subscription: MusicSubscription = Bot.subscriptions.get(message.guildId);
+        let subscription: MusicSubscriptionService = BotService.subscriptions.get(message.guildId);
         if(!subscription){
-            this.messageHandler.send(new DeclineMessage('Bot is not in the channel for the moment.'));
+            message.channel.send('Bot is not in the channel for the moment.').then(Reactions.reactDecline);
             return;
         }
 
-        let trackNames: string[] = subscription.queueHandler.getTracksNames();
+        let trackNames: TrackService[] = subscription.audioPlayerService.queueHandler.getTracks();
         if(!trackNames){
-            this.messageHandler.send(new DeclineMessage('Queue is empty.'));
+            message.channel.send('Queue is empty.').then(Reactions.reactDecline);
             return;
         }
         let outputMessage: string = '> **Queue**\n\n';
-        trackNames.forEach((trackName: string, index: number) => {
-            outputMessage += `${index + 1}. ${trackName}\n`;
+        trackNames.forEach((track: TrackService, index: number) => {
+            outputMessage += `${index + 1}. ${track.name} | Effect: ${Utils.getEnumKeyByEnumValue(AudioEffect, track.audioEffect)?? 'Global'}\n`;
         });
-        this.messageHandler.setStrategy(new CasualMessageStrategy());
-        this.messageHandler.send(new CasualMessage(outputMessage));
+        message.channel.send(outputMessage);
     }
 }

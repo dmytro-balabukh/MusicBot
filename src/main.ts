@@ -1,4 +1,4 @@
-import { Bot } from "./types/bot.type";
+import { BotService } from "./services/bot.service";
 import { TYPES } from "./configs/types.config";
 import { EnvHelper } from "./helpers/env-validator.helper";
 import container from "./configs/inversify.config";
@@ -7,7 +7,12 @@ import container from "./configs/inversify.config";
   if (!EnvHelper.isEnvValid()) {
     return;
   }
-  const BOT = await container.getAsync<Bot>(TYPES.Bot);
-  BOT.configureEvents();
+  try {
+    const BOT = await container.getAsync<BotService>(TYPES.Bot);
+    await BOT.configureEvents();
+  }
+  catch(error){
+    console.log(error);
+  }
 })();
 

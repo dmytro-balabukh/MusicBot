@@ -2,15 +2,15 @@ import { Client, Snowflake } from "discord.js";
 import { inject, injectable } from "inversify";
 import container from "../configs/inversify.config";
 import { TYPES } from "../configs/types.config";
-import EventHandler from "../handlers/event.handler";
+import { EventHandlers as EventHandler } from "../handlers/event.handler";
 import ReadyEvent from "../events/ready.event";
-import MusicSubscription from "./music-subscription.type";
+import MusicSubscriptionService from "./music-subscription.service";
 
 @injectable()
-export class Bot {
+export class BotService {
 
   // guildId, MusicSubscription
-  public static subscriptions = new Map<Snowflake, MusicSubscription>();
+  public static subscriptions = new Map<Snowflake, MusicSubscriptionService>();
   constructor(
     @inject(TYPES.Token) private readonly token: string,
     @inject(TYPES.GuildId) private readonly guildId: string,
