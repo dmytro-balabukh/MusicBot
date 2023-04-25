@@ -1,6 +1,6 @@
 import { Client } from "discord.js";
 import { injectable } from "inversify";
-import { IReadyEvent } from "../interfaces/event.interface";
+import { IReadyEvent } from "../interfaces/event/ready-event.interface";
 
 @injectable()
 export default class ReadyEvent implements IReadyEvent {

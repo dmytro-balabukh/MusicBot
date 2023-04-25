@@ -2,7 +2,7 @@ import { Channel, Client, Message } from "discord.js";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../configs/types.config";
 import CommandHandler from "../handlers/command.handler";
-import { ICommunicateEvent } from "../interfaces/event.interface";
+import { ICommunicateEvent } from "../interfaces/event/communicate-event.interface";
 
 @injectable()
 export class CommunicateEvent implements ICommunicateEvent {
@@ -12,7 +12,6 @@ export class CommunicateEvent implements ICommunicateEvent {
   }
   execute(message: Message): void {
     try {
-      message.guild?.commands
       if (!this.validateMessage(message)) {
         return;
       }
@@ -35,7 +34,7 @@ export class CommunicateEvent implements ICommunicateEvent {
 
   validateMessage(message: Message): boolean {
     if (!message.guild || message.author.bot || message.type === 'REPLY'
-      || !message.content.startsWith('!')) {
+      || !message.content.startsWith('!')) { // !play song
       return false;
     }
     return true;

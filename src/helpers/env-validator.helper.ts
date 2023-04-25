@@ -13,6 +13,10 @@ export class EnvHelper {
       console.error("MISSING GUILD ID");
       validationResult = false;
     }
+    if(!process.env.YOUTUBE_API_TOKEN){
+      console.error("MISSING YOUTUBE API TOKEN");
+      validationResult = false;
+    }
     return validationResult;
   }
 }

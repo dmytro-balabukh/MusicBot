@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import { Container } from "inversify";
+import { Container } from "inversify"
 import { TYPES } from "./types.config";
 import { Bot } from "../types/bot.type";
-import { Client } from "discord.js";
+import { Client, TextChannel } from "discord.js"
 import { IntentOptions } from "./config";
 import ReadyEvent from "../events/ready.event";
 import EventHandler from "../handlers/event.handler";
@@ -13,6 +13,15 @@ import StatsCommand from "../commands/stats.command";
 import PlayCommand from "../commands/play.command";
 import LeaveCommand from "../commands/leave.commands";
 import YouTube from "discord-youtube-api";
+import QueueHandler from "../handlers/queue.handler";
+import MusicSubscription from "../types/music-subscription.type";
+import Track from "../types/track.type";
+import QueueCommand from "../commands/queue.command";
+import JumpCommand from "../commands/jump.command";
+import SkipCommand from "../commands/skip.command";
+import PauseCommand from "../commands/pause.command";
+import ContinueCommand from "../commands/continue.command";
+import MessageHandler from "../handlers/message.handler";
 
 let container = new Container();
 
@@ -45,14 +54,34 @@ container.bind<PlayCommand>(TYPES.PlayCommand)
 container.bind<LeaveCommand>(TYPES.LeaveCommand)
   .to(LeaveCommand).inSingletonScope();
 
+container.bind<QueueCommand>(TYPES.QueueCommand)
+.to(QueueCommand).inSingletonScope();
+container.bind<SkipCommand>(TYPES.SkipCommand)
+.to(SkipCommand).inSingletonScope();
+container.bind<JumpCommand>(TYPES.JumpCommand)
+.to(JumpCommand).inSingletonScope();
+container.bind<PauseCommand>(TYPES.PauseCommand)
+.to(PauseCommand).inSingletonScope();
+container.bind<ContinueCommand>(TYPES.ContinueCommand)
+.to(ContinueCommand).inSingletonScope();
+
 // Handlers
 container.bind<EventHandler>(TYPES.EventHandler)
   .to(EventHandler).inSingletonScope();
 container.bind<CommandHandler>(TYPES.CommandHandler)
   .to(CommandHandler).inSingletonScope();
-
+container.bind<MessageHandler>(TYPES.MessageHandler)
+  .to(MessageHandler);
+container.bind<QueueHandler>(TYPES.QueueHandler)
+  .to(QueueHandler).inRequestScope();
+  
 // Miscelaneous
 container.bind<YouTube>(TYPES.Youtube)
   .toConstantValue(new YouTube(container.get<string>(TYPES.YoutubeToken)));
+
+container.bind<MusicSubscription>(TYPES.MusicSubscription)
+  .to(MusicSubscription).inSingletonScope();
+container.bind<Track>(TYPES.Track)
+  .to(Track).inSingletonScope();
 
 export default container;

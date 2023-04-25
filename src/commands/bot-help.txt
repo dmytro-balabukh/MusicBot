@@ -10,15 +10,19 @@
 > ```ini
 > > [!pause]
 > ```
-> **4. SHOW QUEUE OF SONGS**
+> **4. CONTINUE THE SONG**
 > ```ini
-> > [!q | !queue]
+> > [!continue]
 > ```
-> **5. SKIP A SONG**
+> **5. SHOW QUEUE OF SONGS**
+> ```ini
+> > [!queue]
+> ```
+> **6. SKIP A SONG**
 > ```ini
 > > [!skip]
 > ```
-> **6. JUMP TO THE SONG FROM QUEUE**
+> **7. JUMP TO THE SONG FROM QUEUE**
 > ```ini
 > > [!jump] (e.g !jump 3)
 > ```
